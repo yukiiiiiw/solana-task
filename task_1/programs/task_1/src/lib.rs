@@ -80,21 +80,21 @@ pub mod task_1 {
 /** 充值结构体 */
 #[derive(Accounts)]
 pub struct Deposit<'info> {
-    /// CHECK: This is the user account, which signs the transaction.
     #[account(mut, signer)]
+    /// CHECK: This is the user account, which signs the transaction.
     pub user: AccountInfo<'info>, // 充值用户
-    /// CHECK: This is the user account, which mange the sol.
     #[account(
-        init,
+        init_if_needed,
         payer = user,
         seeds = [b"stack", user.key.as_ref()],
         owner = system_program::ID, // 系统账户
         bump,
         space = 0 
     )]
+    /// CHECK: This is a PDA verified in constraints.
     pub stack_account_pda: AccountInfo<'info>, // 存储SOL的普通质押账户[系统账户、用户钱包可以操作转账，需要签名]
     #[account(
-        init, // 如果 stack_account 未初始化，自动初始化
+        init_if_needed, // 如果 stack_account 未初始化，自动初始化
         payer = user, 
         seeds = [user.key.as_ref()],
         bump, 
@@ -107,15 +107,15 @@ pub struct Deposit<'info> {
 /** 提现结构体 */
 #[derive(Accounts)]
 pub struct Withdraw<'info> {
-    /// CHECK: This is the user account, which signs the transaction.
     #[account(mut, signer)]
+    /// CHECK: This is the user account, which signs the transaction.
     pub user: AccountInfo<'info>, // 提现用户
-    /// CHECK: This is the user account, which mange the sol.
     #[account(
         mut,
         seeds = [b"stack", user.key().as_ref()], 
         bump
     )]
+    /// CHECK: This is a PDA verified in constraints.
     pub stack_account_pda: AccountInfo<'info>, // 存储SOL的普通质押账户
     #[account(
         mut,

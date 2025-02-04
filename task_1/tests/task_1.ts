@@ -60,6 +60,23 @@ describe("task1", () => {
     console.log("[", stackAccountData, "]deposit transaction successful! tx: ", tx, "stack balance: ", account.balance.toNumber);
   });
 
+  it("Deposit2", async () => {
+    const tx = await program.methods
+      .deposit(new anchor.BN(depositAmount))
+      .accounts({
+        user: user.publicKey,
+        stackAccountPda: stackPDA,
+        stackAccount: stackAccountData,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([user])
+      .rpc();
+
+    // 查询质押余额
+    const account = await program.account.stackAccount.fetch(stackAccountData);
+    console.log("[", stackAccountData, "]deposit transaction successful! tx: ", tx, "stack balance: ", account.balance.toNumber);
+  });
+
   it("Withdraw", async () => {
     // 获取 stackAccount 的当前余额
     const stackAccountBalance = await program.account.stackAccount.fetch(stackAccountData);
