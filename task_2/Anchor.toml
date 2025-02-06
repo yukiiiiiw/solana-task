@@ -1,0 +1,24 @@
+[toolchain]
+
+[features]
+resolution = true
+skip-lint = false
+
+[programs.localnet]
+task_2 = "9fFVjtHSekgUgzAvrPrN2NptvQLbwGsTBizDZsxsAAFr"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "Localnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+
+[[test.genesis]] 
+# [LocalNet]配置 Metaplex Token Metadata Program
+# 下载到本地 solana program dump metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s mpl_token_metadata.so
+address = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s" 
+program = "mpl_token_metadata.so"
