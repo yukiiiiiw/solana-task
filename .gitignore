@@ -4,3 +4,5 @@
 **/.anchor/
 .DS_Store
 **/config*
+.history/
+.lh/
