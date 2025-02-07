@@ -115,7 +115,7 @@ pub fn deposit_spl(ctx: Context<DepositSpl>, amount: u64) -> Result<()> {
 }
 
 pub fn withdraw_spl(ctx: Context<WithdrawSpl>) -> Result<()> {
-
+    msg!("Executing withdraw_spl function");
     msg!("user {}", ctx.accounts.payer.to_account_info().key);
     msg!("pda_stack_account {}", ctx.accounts.pda_stack_account.to_account_info().key);
 
@@ -124,14 +124,14 @@ pub fn withdraw_spl(ctx: Context<WithdrawSpl>) -> Result<()> {
     require!(balance > 0, CustomError::InsufficientBalance);
 
     // 提现spl转账
-    // let user = ctx.accounts.payer.to_account_info();
-    // let bump = ctx.accounts.stack_account.stack_account_pda_pump;
-    // let seeds: &[&[u8]] = &[b"stack", user.key.as_ref(), &[bump]];
-    // let signer = &[&seeds[..]];
-
-    let bump = ctx.bumps.mint;
-    let seeds = &[b"mint".as_ref(), &[bump]];
+    let user = ctx.accounts.payer.to_account_info();
+    let bump = ctx.accounts.stack_account.stack_account_pda_pump;
+    let seeds: &[&[u8]] = &[b"stack", user.key.as_ref(), &[bump]];
     let signer = &[&seeds[..]];
+
+    // let bump = ctx.bumps.mint;
+    // let seeds = &[b"mint".as_ref(), &[bump]];
+    // let signer = &[&seeds[..]];
 
     let _tx = anchor_spl::token::transfer(
         CpiContext::new_with_signer(

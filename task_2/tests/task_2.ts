@@ -169,7 +169,10 @@ describe("task_2", () => {
   });
 
   it("Is withdraw!", async () => {
-
+    console.log("user:", user.publicKey);
+    console.log("pdaStackAccount:", pdaStackAccountPda);
+    console.log("mintPda:", mintPda);
+    
     const tx = await program.methods
     .withdrawSpl()
     .accounts({
