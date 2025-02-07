@@ -123,27 +123,49 @@ pub fn withdraw_spl(ctx: Context<WithdrawSpl>) -> Result<()> {
     let balance = ctx.accounts.stack_account.balance;
     require!(balance > 0, CustomError::InsufficientBalance);
 
-    // 提现spl转账
+    let from_ata = ctx.accounts.stack_account_ata.to_account_info();
+    let to_ata = ctx.accounts.user_ata.to_account_info();
+    let from_pda = ctx.accounts.pda_stack_account.to_account_info();
+    let token_program = ctx.accounts.token_program.to_account_info();
+
+
+    // 交易签名seeds
     let user = ctx.accounts.payer.to_account_info();
     let bump = ctx.accounts.stack_account.stack_account_pda_pump;
     let seeds: &[&[u8]] = &[b"stack", user.key.as_ref(), &[bump]];
-    let signer = &[&seeds[..]];
-
-    // let bump = ctx.bumps.mint;
-    // let seeds = &[b"mint".as_ref(), &[bump]];
     // let signer = &[&seeds[..]];
 
-    let _tx = anchor_spl::token::transfer(
-        CpiContext::new_with_signer(
-            ctx.accounts.token_program.to_account_info(),
-            anchor_spl::token::Transfer {
-                from: ctx.accounts.stack_account_ata.to_account_info(),
-                to: ctx.accounts.user_ata.to_account_info(),
-                authority: ctx.accounts.pda_stack_account.to_account_info(),
-            },
-            signer
-        ),
-        balance
+    // 方式一 CPI调用 anchor_spl::token::transfer()
+    // let cpi_context = CpiContext::new_with_signer(
+    //     ctx.accounts.token_program.to_account_info(),
+    //         anchor_spl::token::Transfer {
+    //             from: from_ata,
+    //             to: to_ata,
+    //             authority: from_pda,     //指定authority作为需要签名的账户
+    //         },
+    //         signer
+    // );
+    // let _tx = token::transfer(cpi_context, balance)?;
+
+    // 方式二 交易指令
+    let transfer_ix = spl_token::instruction::transfer(
+        token_program.key,      
+        from_ata.key,            
+        to_ata.key,         
+        from_pda.key,               
+        &[&from_pda.key],   // PDA公钥作为需要签名的账户
+        balance,                 
+    )?;
+
+    let _tx = anchor_lang::solana_program::program::invoke_signed(
+        &transfer_ix,
+        &[
+            from_ata,
+            to_ata,
+            from_pda,
+            token_program,
+        ],
+        &[&seeds[..]],  // 交易签名
     )?;
 
     // 更新余额
@@ -247,18 +269,15 @@ pub struct DepositSpl<'info> {
 pub struct WithdrawSpl<'info> {
     #[account(mut, signer)]
     pub payer: Signer<'info>, 
-    #[account(mut, signer)]
+    #[account(
+        mut,
+        signer,
+        seeds = [b"stack", payer.key.as_ref()],
+        bump
+    )]
     pub pda_stack_account: Signer<'info>,
     #[account(mut)]
     pub stack_account: Account<'info, StackAccount>, // 质押数据账户
-
-    #[account(
-        mut,
-        seeds = [b"mint"],
-        bump,
-        mint::authority = mint,
-    )]
-    pub mint: Account<'info, Mint>, 
 
     #[account(mut)]
     pub user_ata: Account<'info, TokenAccount>,

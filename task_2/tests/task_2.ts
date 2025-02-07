@@ -179,7 +179,6 @@ describe("task_2", () => {
       payer: user.publicKey,
       pdaStackAccount: pdaStackAccountPda,
       stackAccount: stackAccountPda,
-      mint: mintPda,
       userAta: userAta,
       stackAccountAta: stackAta,
       systemProgram: SystemProgram.programId,
