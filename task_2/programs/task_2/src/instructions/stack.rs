@@ -271,11 +271,11 @@ pub struct WithdrawSpl<'info> {
     pub payer: Signer<'info>, 
     #[account(
         mut,
-        signer,
         seeds = [b"stack", payer.key.as_ref()],
         bump
     )]
-    pub pda_stack_account: Signer<'info>,
+    /// CHECK: This is a PDA verified in constraints.
+    pub pda_stack_account: AccountInfo<'info>,
     #[account(mut)]
     pub stack_account: Account<'info, StackAccount>, // 质押数据账户
 

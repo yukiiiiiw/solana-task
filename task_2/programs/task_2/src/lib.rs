@@ -14,6 +14,7 @@ pub mod task_2 {
     use super::*;
 
     pub fn create_token(ctx: Context<CreateSpl>, metadata: InitTokenParams) -> Result<()> {
+        msg!("test log");
         crate::instructions::spl::create_token(ctx, metadata)
     }
 
